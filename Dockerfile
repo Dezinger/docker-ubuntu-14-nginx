@@ -3,7 +3,7 @@ FROM dezinger/ubuntu-14:latest
 MAINTAINER dezinger@gmail.com
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV DOCUMENT_ROOT=html
+ENV DOCUMENT_ROOT html
 
 COPY files/ /
 
