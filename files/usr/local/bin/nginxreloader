@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+RELOADER_FOLDER=/tmp/nginxreloader
+CUSTOMER_NGINX_CONF=/var/www/nginx.conf
+CUSTOMER_NGINX_CONF_PREV=${RELOADER_FOLDER}/nginx.conf
+
+function initialise {
+    mkdir -p $RELOADER_FOLDER
+    [ -f $CUSTOMER_NGINX_CONF ] && cp $CUSTOMER_NGINX_CONF $CUSTOMER_NGINX_CONF_PREV
+}
+
+function do_sighup {
+    echo -n "SIGHUP sent at "; date
+    kill -HUP $(cat /var/run/nginx.pid)
+}
+
+function custom_nginx_conf {
+    if [ -f $CUSTOMER_NGINX_CONF ] && [ ! -f $CUSTOMER_NGINX_CONF_PREV ]; then
+        cp $CUSTOMER_NGINX_CONF $CUSTOMER_NGINX_CONF_PREV
+        do_sighup
+    elif [ ! -f $CUSTOMER_NGINX_CONF ] && [ -f $CUSTOMER_NGINX_CONF_PREV ]; then
+        rm $CUSTOMER_NGINX_CONF_PREV
+        do_sighup
+    elif [ -f $CUSTOMER_NGINX_CONF ] && [ -f $CUSTOMER_NGINX_CONF_PREV ]; then
+        md5now=$(md5sum $CUSTOMER_NGINX_CONF | awk '{ print $1 }')
+        md5then=$(md5sum $CUSTOMER_NGINX_CONF_PREV | awk '{ print $1 }')
+        if [ "$md5now" != "$md5then" ]; then
+            cp $CUSTOMER_NGINX_CONF $CUSTOMER_NGINX_CONF_PREV
+            do_sighup
+        fi
+    fi
+}
+
+function loop_forever {
+    while [ 1 ]; do
+        custom_nginx_conf
+        sleep 10
+    done
+}
+
+initialise
+loop_forever > /var/log/nginx/reloader.log 2>&1
