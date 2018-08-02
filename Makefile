@@ -4,7 +4,7 @@ BASE_IMAGE = $(shell grep Dockerfile -e FROM | cut -d ' ' -f 2)
 #DOCKER_SOCKET = /var/run/docker.sock
 BUILD_ARGS = --rm
 
-all: pull build test
+all: pull build 
 
 pull:
 	##
