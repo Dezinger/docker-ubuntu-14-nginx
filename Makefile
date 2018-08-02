@@ -34,7 +34,7 @@ clean:
 	## Removing docker images .. most errors during this stage are ok, ignore them
 	##
 	for IMAGE in ${BASE_IMAGE}; \
-		do docker pull $${IMAGE}; \
+		do docker rmi $${IMAGE}; \
 	done
 
 .PHONY: all pull build clean
