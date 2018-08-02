@@ -1,0 +1,58 @@
+upstream dynamic  {
+  server ${BACKEND_NAME}:${BACKEND_PORT} weight=3 max_fails=10 fail_timeout=10s;
+}
+
+server {
+    listen ${LISTENPORT};
+
+    server_name ${SERVER_NAME};
+    root /var/www/${DOCUMENT_ROOT};
+
+    index index.php index.html index.htm;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_pass dynamic;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    location ~* /\. {
+        deny all;
+    }
+
+    location ~ /.ht {
+        deny all;
+    }		
+		
+    location = /robots.txt { 
+        access_log off; 
+        log_not_found off;
+    }
+		
+    location = /favicon.ico { 
+        access_log off; 
+        log_not_found off; 
+    }
+		
+    location ~ /\. { 
+        access_log off; 
+        log_not_found off; 
+        deny all; 
+    }
+		
+    location ~ ~$ { 
+        access_log off; 
+        log_not_found off; 
+        deny all; 
+    }
+
+    access_log "/var/log/nginx/${SERVER_NAME}.access.log";
+    error_log "/var/log/nginx/${SERVER_NAME}.error.log";
+}

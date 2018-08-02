@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-#if [ -s /etc/DOCUMENT_ROOT ]; then
-#    DOCUMENT_ROOT=`cat /etc/DOCUMENT_ROOT`
-#else
-#    echo ${DOCUMENT_ROOT} > /etc/DOCUMENT_ROOT
-#fi
-
 if [ ! -d  "/var/www/$DOCUMENT_ROOT" ]; then
   echo "Creating folder /var/www/$DOCUMENT_ROOT"
   mkdir -p "/var/www/$DOCUMENT_ROOT"
@@ -13,7 +7,15 @@ else
   echo "/var/www/$DOCUMENT_ROOT already exists."
 fi
 
-#echo "Setting document root to /var/www/$DOCUMENT_ROOT"
-#cp /etc/nginx/sites-enabled/site.conf /tmp
-#sed -i -e 's,root /var/www/html,root /var/www/'"$DOCUMENT_ROOT"',g' /tmp/site.conf
-#cat /tmp/site.conf > /etc/nginx/sites-enabled/site.conf
+echo "Setting document root to /var/www/$DOCUMENT_ROOT"
+
+export LISTENPORT=${LISTENPORT:-80}
+export SERVER_NAME=${SERVER_NAME:-_}
+export DOCUMENT_ROOT=${DOCUMENT_ROOT:-html}
+export BACKEND_NAME=${BACKEND_NAME:-127.0.0.1}
+export BACKEND_PORT=${BACKEND_PORT:-9000}
+
+envsubst '${LISTENPORT} ${SERVER_NAME} ${DOCUMENT_ROOT} ${BACKEND_NAME} ${BACKEND_PORT}' > /etc/nginx/sites-enabled/site.conf < /etc/nginx/sites-available/site.conf.templ
+
+ln -sf /dev/stdout /var/log/nginx/$SERVER_NAME.access.log
+ln -sf /dev/stderr /var/log/nginx/$SERVER_NAME.error.log

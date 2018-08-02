@@ -5,7 +5,7 @@ BASE_IMAGE = $(shell grep Dockerfile -e FROM | cut -d ' ' -f 2)
 BUILD_ARGS = --rm
 DOCKER_ID_USER = dezinger
 
-all: build push
+all: pull build push
 
 pull:
 	##
