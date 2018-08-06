@@ -19,14 +19,14 @@ build:
 	##
 	## Starting build of image ${IMAGE_NAME}
 	##
-	docker build ${BUILD_ARGS} --tag ${IMAGE_NAME} .
+	docker build ${BUILD_ARGS} --tag ${DOCKER_ID_USER}/${IMAGE_NAME} .
 
 push:
 	##
 	## Push image
 	##
 	docker login
-	docker tag ${IMAGE_NAME} ${DOCKER_ID_USER}/${IMAGE_NAME}
+	#docker tag ${IMAGE_NAME} ${DOCKER_ID_USER}/${IMAGE_NAME}
 	docker push ${DOCKER_ID_USER}/${IMAGE_NAME}
 	
 clean:
